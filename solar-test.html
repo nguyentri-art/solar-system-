@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Explorer in CSS Only</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700">
+    <style>
+        /* Full static CSS + unrolled dynamic rules for all planets */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        body {
+            overflow: hidden;
+            background: black;
+            height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .logo {
+            color: white;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            text-align: center;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 100;
+            letter-spacing: 4px;
+            z-index: 10;
+        }
+        .logo span {
+            font-size: 12px;
+            color: #f39041;
+            display: block;
+        }
+        label.menu {
+            color: white;
+            display: block;
+            position: absolute;
+            cursor: pointer;
+            left: 90px;
+            z-index: 2;
+        }
+        label.menu:after {
+            display: block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid white;
+            border-radius: 60px;
+            content: '';
+            z-index: 2;
+            position: absolute;
+            top: -4px;
+            left: -4px;
+        }
+        label.menu:hover h2, label.menu:hover h3 {
+            opacity: 1;
+        }
+        label.menu .preview {
+            width: 30px;
+            height: 30px;
+            background-size: auto 100% !important;
+            position: absolute;
+            border-radius: 100px;
+            box-shadow: 0 -13px 10px 2px black inset;
+        }
+        label.menu .info {
+            position: relative;
+            left: 50px;
+            top: 1px;
+        }
+        label.menu h2, label.menu h3 {
+            text-transform: uppercase;
+            margin: 0;
+            font-weight: 100;
+            letter-spacing: 2px;
+        }
+        label.menu h2 {
+            font-size: 11px;
+            opacity: 0.4;
+            margin-bottom: 4px;
+        }
+        label.menu h2 .pip {
+            width: 0;
+            height: 9px;
+            background: #fea082;
+            float: left;
+            position: relative;
+            top: 3px;
+            transition: all 0.3s;
+            margin-right: 0px;
+        }
+        label.menu h3 {
+            font-size: 8px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            opacity: 0.3;
+        }
+        /* Planet-specific previews and pips */
+        label.mercury .preview { background: url('https://www.solarsystemscope.com/images/textures/full/2k_makemake_fictional.jpg') !important; }
+        label.mercury h2 .pip { background: #E8927C; }
+        label.venus .preview { background: url('https://nasa3d.arc.nasa.gov/shared_assets/images/ven0aaa2/ven0aaa2-copy-428-321.jpg') !important; }
+        label.venus h2 .pip { background: #b45d15; }
+        label.earth .preview { background: url('https://img00.deviantart.net/04ef/i/2009/114/3/e/new_earth_texture_map_by_lightondesigns.jpg') !important; }
+        label.earth h2 .pip { background: #26daaa; }
+        label.mars .preview { background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/mars_texture.jpg') !important; }
+        label.mars h2 .pip { background: #e55f45; }
+        label.jupiter .preview { background: url('https://www.jpl.nasa.gov/spaceimages/images/largesize/PIA07782_hires.jpg') !important; }
+        label.jupiter h2 .pip { background: orange; }
+        label.saturn .preview { background: url('https://www.solarsystemscope.com/images/textures/full/2k_saturn.jpg') !important; }
+        label.saturn h2 .pip { background: #b29d81; }
+        label.uranus .preview { background: url('https://img00.deviantart.net/957c/i/2017/165/4/9/uranus_texture_map_by_jcpag2010-db7yjwb.png') !important; }
+        label.uranus h2 .pip { background: #8dcdd8; }
+        label.neptune .preview { background: url('https://img00.deviantart.net/f068/i/2017/165/b/c/neptune_texture_map_by_jcpag2010-dbcjcv5.png') !important; }
+        label.neptune h2 .pip { background: #4f83e2; }
+        label.pluto .preview { background: url('https://pre00.deviantart.net/4677/th/pre/f/2015/314/4/e/pluto_map__2015_nov_10__by_snowfall_the_cat-d918tlb.png') !important; }
+        label.pluto h2 .pip { background: #FF8732; }
+        input[type="radio"] {
+            display: none;
+        }
+        input[type="radio"][name="planet"]:after {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 550px;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+            z-index: 12;
+            left: 18px;
+            bottom: 282px;
+            content: '';
+        }
+        .solar {
+            position: absolute;
+            transform: rotateX(-20deg);
+            perspective: 800px;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+        .solar_systm {
+            transform-style: preserve-3d;
+            pointer-events: none;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+        .planet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: auto;
+            height: 1200px;
+            width: 1200px;
+            border-radius: 600px;
+            background-size: 1140px 910px !important;
+            top: auto;
+            bottom: -920px;
+            transition: transform 2.8s 0.23s cubic-bezier(0.33, 0, 0, 1), opacity 2s 0.8s, box-shadow 0s 0s;
+        }
+        .planet .moon {
+            height: 200px;
+            width: 200px;
+            border-radius: 600px;
+            background: red;
+            position: absolute;
+            text-align: center;
+            color: white;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: all 0.6s 0.2s;
+        }
+        .planet .moon h2 {
+            font-weight: 100;
+            font-size: 40px;
+            letter-spacing: 5px;
+            margin: 0;
+            position: relative;
+            top: -120px;
+        }
+        .planet .moon h3 {
+            font-weight: 100;
+            font-size: 20px;
+            letter-spacing: 5px;
+            color: #fea082;
+            margin: 0;
+            position: relative;
+            top: -120px;
+        }
+        .planet .trajectory {
+            border: 2px dashed white;
+            position: absolute;
+            border-radius: 3400px;
+            background: none !important;
+            z-index: -2;
+            transition: all 0.6s 0s;
+            opacity: 0;
+        }
+        .planet_description {
+            width: 620px;
+            text-align: center;
+            position: absolute;
+            margin: auto;
+            left: 0;
+            z-index: 2;
+            right: 0;
+            color: white;
+            font-weight: 100;
+            transition: all 0.4s 0s;
+            text-transform: uppercase;
+            z-index: 1;
+            opacity: 0;
+        }
+        .planet_description h1, .planet_description h2, .planet_description p, .planet_description a {
+            font-weight: 100;
+            font-size: 10px;
+            letter-spacing: 5px;
+            margin: 0;
+        }
+        .planet_description h1 {
+            letter-spacing: 16px;
+            font-size: 34px;
+        }
+        .planet_description h2, .planet_description a {
+            color: #fabfad;
+        }
+        .planet_description h2 {
+            margin-top: 60px;
+            margin-bottom: 6px;
+        }
+        .planet_description p {
+            line-height: 26px;
+            margin-top: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .planet_description a {
+            color: #fea082;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 0 2px 5px 0px;
+            border-bottom: 2px solid;
+            transition: all 0.2s;
+            position: relative;
+            left: 0;
+        }
+        .planet_description a:hover {
+            padding: 0 10px 5px 10px;
+            left: -1px;
+        }
+        .planet_description a span {
+            letter-spacing: 0;
+            margin-left: -5px;
+        }
+        /* Planet-specific from makePlanet mixin and colors */
+        .planet.mercury {
+            background: url('https://www.solarsystemscope.com/images/textures/full/2k_makemake_fictional.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgba(188, 143, 127, 0.6);
+        }
+        .planet.venus {
+            background: url('https://nasa3d.arc.nasa.gov/shared_assets/images/ven0aaa2/ven0aaa2-copy-428-321.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px #ffcb9c inset, 0 0px 23px 4px #ffcb9c inset, 0 -10px 130px #b85a07;
+        }
+        .planet.earth {
+            background: url('https://img00.deviantart.net/04ef/i/2009/114/3/e/new_earth_texture_map_by_lightondesigns.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px #8cbaff inset, 0 0px 23px 4px #8cbaff inset, 0 -10px 130px #7894a9;
+        }
+        .planet.mars {
+            background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/217233/mars_texture.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px #e86363 inset, 0 0px 23px 4px #e86363 inset, 0 -10px 130px #6b261a;
+        }
+        .planet.jupiter {
+            background: url('https://www.jpl.nasa.gov/spaceimages/images/largesize/PIA07782_hires.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgba(188, 143, 127, 0.6);
+        }
+        .planet.saturn {
+            background: url('https://www.solarsystemscope.com/images/textures/full/2k_saturn.jpg');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgba(188, 143, 127, 0.6);
+        }
+        .planet.uranus {
+            background: url('https://img00.deviantart.net/957c/i/2017/165/4/9/uranus_texture_map_by_jcpag2010-db7yjwb.png');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgba(127, 188, 171, 0.6);
+        }
+        .planet.neptune {
+            background: url('https://img00.deviantart.net/f068/i/2017/165/b/c/neptune_texture_map_by_jcpag2010-dbcjcv5.png');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgb(45, 65, 83);
+        }
+        .planet.pluto {
+            background: url('https://pre00.deviantart.net/4677/th/pre/f/2015/314/4/e/pluto_map__2015_nov_10__by_snowfall_the_cat-d918tlb.png');
+            box-shadow: 0 -590px 150px black inset, 0 0px 130px 40px rgba(234, 205, 199, 0.6) inset, 0 0px 23px 4px rgba(234, 205, 199, 0.6) inset, 0 -10px 130px rgb(45, 65, 83);
+        }
+        .overlay {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: auto;
+            border-bottom: 1020px solid black;
+            width: 1800px;
+            height: 620px;
+            top: auto;
+            transform: none;
+            top: -240px;
+            left: -303px;
+            opacity: 1;
+            border-radius: 100%;
+            z-index: 0;
+            box-shadow: 0px -190px 215px 110px black inset;
+        }
+        input.read {
+            display: none;
+        }
+        .read:checked + label.closeBig + input + .panel {
+            right: 0;
+        }
+        .read:checked + label.closeBig {
+            width: calc(100% - 420px);
+        }
+        .read:checked + label.closeBig:after {
+            opacity: 1;
+            left: 0;
+        }
+        .read:checked + label.closeBig + label {
+            transition: all 0.3s 0.6s;
+            opacity: 1;
+        }
+        .read:not(:checked) + label.closeBig + label {
+            transition: all 0.3s 0s;
+            opacity: 0;
+        }
+        label.closeBig {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            height: 100vh;
+            transition: all 0.2s;
+            z-index: 10;
+            width: 0;
+            background: rgba(56, 37, 99, 0.38);
+        }
+        label.closeBig:after {
+            content: 'Back';
+            text-align: center;
+            font-size: 30px;
+            color: white;
+            position: absolute;
+            left: -140px;
+            opacity: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .panel {
+            position: absolute;
+            right: -520px;
+            width: 300px;
+            top: 0;
+            height: 100vh;
+            transition: all 0.2s;
+            color: black;
+            background: white;
+            padding: 10px 60px 0px 60px;
+            overflow: scroll;
+        }
+        .panel::-webkit-scrollbar {
+            width: 1em;
+        }
+        .panel::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        }
+        .panel::-webkit-scrollbar-thumb {
+            background-color: darkgrey;
+            outline: 1px solid slategrey;
+        }
+        .panel img {
+            border-radius: 2px;
+            width: 100%;
+        }
+        .panel h1 {
+            text-transform: uppercase;
+            font-weight: 100;
+            margin: 0;
+            letter-spacing: 3px;
+            top: 0;
+            padding: 49px 0 0 0;
+            width: 100%;
+            font-size: 20px;
+        }
+        .panel h1:after {
+            width: 30px;
+            height: 2px;
+            background: black;
+            display: block;
+            content: '';
+            margin-bottom: 30px;
+            margin-top: 8px;
+        }
+        .panel h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 30px;
+        }
+        .panel h2:after {
+            width: 30px;
+            height: 2px;
+            background: black;
+            display: block;
+            content: '';
+            margin-top: 8px;
+        }
+        .panel p {
+            color: #a0a0a0;
+            font-size: 12px;
+            line-height: 20px;
+        }
+        /* Keyframe for rotation */
+        @keyframes planet {
+            from { background-position-y: 0px; }
+            to { background-position-y: -1000px; }
+        }
+        /* Moon trajectories (examples - add more as needed) */
+        .earth .trajectory.m { width: 1500px; height: 1500px; left: -150px; top: -110px; }
+        .mars .trajectory.d { width: 1770px; height: 1770px; left: -317px; top: -110px; }
+        .mars .trajectory.p { width: 1600px; height: 1600px; left: -200px; top: -160px; }
+        .earth .moon.moon { left: 800px; top: -160px; transform: scale(0.45); background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg'); box-shadow: 0px -30px 30px 10px black inset; }
+        .mars .moon.deimos { left: 900px; top: -100px; transform: scale(0.45); background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg'); box-shadow: 0px -30px 30px 10px black inset; }
+        .mars .moon.phobos { left: 100px; top: -160px; transform: scale(0.5); background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg'); box-shadow: 0px -30px 30px 10px black inset; }
+       
+
+        .jupiter .trajectory.io_p { 
+    width: 2200px; height: 2200px; 
+    left: -420px; top: -160px; 
+}
+
+.jupiter .trajectory.eu { 
+    width: 2600px; height: 2600px; 
+    left: -630px; top: -180px; 
+}
+
+.jupiter .trajectory.ga { 
+    width: 3100px; height: 3100px; 
+    left: -880px; top: -220px; 
+}
+
+.jupiter .trajectory.ca { 
+    width: 3500px; height: 3500px; 
+    left: -1100px; top: -260px; 
+}
+
+.jupiter .moon.io {     
+    left: 1100px; top: -140px; 
+    transform: scale(0.55); 
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.jupiter .moon.europa { 
+    left: 1300px; top: -160px; 
+    transform: scale(0.5); 
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.jupiter .moon.ganymede { 
+    left: 150px; top: -240px; 
+    transform: scale(0.65); 
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.jupiter .moon.callisto { 
+    left: 300px; top: -300px; 
+    transform: scale(0.6); 
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}       
+
+:root {
+    --moon-texture: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+}
+
+
+/* Saturn moon trajectories */
+.saturn .trajectory.ti { width: 2600px; height: 2600px; left: -650px; top: -200px; }
+.saturn .trajectory.di { width: 3000px; height: 3000px; left: -820px; top: -230px; }
+.saturn .trajectory.enc { width: 3500px; height: 3500px; left: -1050px; top: -260px; }
+
+/* Saturn moons */
+.saturn .moon.titan {
+    left: 1300px; top: -180px;
+    transform: scale(0.65);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.saturn .moon.dione {
+    left: 1500px; top: -200px;
+    transform: scale(0.50);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.saturn .moon.enceladus {
+    left: 300px; top: -280px;
+    transform: scale(0.45);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+/* Uranus moon trajectories */
+.uranus .trajectory.mir { width: 2400px; height: 2400px; left: -500px; top: -180px; }
+.uranus .trajectory.ari { width: 2800px; height: 2800px; left: -700px; top: -210px; }
+.uranus .trajectory.umb { width: 3200px; height: 3200px; left: -900px; top: -240px; }
+
+/* Uranus moons */
+.uranus .moon.miranda {
+    left: 1200px; top: -150px;
+    transform: scale(0.45);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.uranus .moon.ariel {
+    left: 1400px; top: -180px;
+    transform: scale(0.55);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.uranus .moon.umbriel {
+    left: 200px; top: -240px;
+    transform: scale(0.50);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+
+/* Neptune moon trajectories */
+.neptune .trajectory.tri { width: 2500px; height: 2500px; left: -600px; top: -180px; }
+.neptune .trajectory.pro { width: 3000px; height: 3000px; left: -850px; top: -210px; }
+.neptune .trajectory.ner { width: 3600px; height: 3600px; left: -1150px; top: -250px; }
+
+/* Neptune moons */
+.neptune .moon.triton {
+    left: 1250px; top: -160px;
+    transform: scale(0.60);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.neptune .moon.proteus {
+    left: 1480px; top: -190px;
+    transform: scale(0.45);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.neptune .moon.nereid {
+    left: 250px; top: -260px;
+    transform: scale(0.55);
+    background: var(--moon-texture);
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.saturn .trajectory.rhe {
+    width: 2800px; height: 2800px;
+    left: -750px; top: -230px;
+}
+.saturn .moon.rhea {
+    left: 1400px; top: -230px;
+    transform: scale(0.45);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.saturn .trajectory.iap {
+    width: 3100px; height: 3100px;
+    left: -900px; top: -260px;
+}
+.saturn .moon.iapetus {
+    left: 1550px; top: -260px;
+    transform: scale(0.5);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.saturn .trajectory.tet {
+    width: 2400px; height: 2400px;
+    left: -600px; top: -180px;
+}
+.saturn .moon.tethys {
+    left: 1200px; top: -180px;
+    transform: scale(0.42);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.uranus .trajectory.tia {
+    width: 3300px; height: 3300px;
+    left: -950px; top: -260px;
+}
+.uranus .moon.titania {
+    left: 1650px; top: -260px;
+    transform: scale(0.48);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.uranus .trajectory.obe {
+    width: 3600px; height: 3600px;
+    left: -1100px; top: -280px;
+}
+.uranus .moon.oberon {
+    left: 1800px; top: -280px;
+    transform: scale(0.5);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+.pluto .trajectory.cha {
+    width: 2000px; height: 2000px;
+    left: -450px; top: -150px;
+}
+.pluto .moon.charon {
+    left: 1000px; top: -150px;
+    transform: scale(0.55);
+    background: url('https://img2.cgtrader.com/items/702173/682fad2a11/92k-moon-color-map-3d-model.jpg');
+    box-shadow: 0px -30px 30px 10px black inset;
+}
+
+
+
+
+        /* Menu positioning */
+label.menu:nth-of-type(1) { top: calc(50vh + 100px + ((14px + 34px) * 1) - 418px); }
+label.menu:nth-of-type(2) { top: calc(50vh + 100px + ((14px + 34px) * 2) - 418px); }
+label.menu:nth-of-type(3) { top: calc(50vh + 100px + ((14px + 34px) * 3) - 418px); }
+label.menu:nth-of-type(4) { top: calc(50vh + 100px + ((14px + 34px) * 4) - 418px); }
+label.menu:nth-of-type(5) { top: calc(50vh + 100px + ((14px + 34px) * 5) - 418px); }
+label.menu:nth-of-type(6) { top: calc(50vh + 100px + ((14px + 34px) * 6) - 418px); }
+label.menu:nth-of-type(7) { top: calc(50vh + 100px + ((14px + 34px) * 7) - 418px); }
+label.menu:nth-of-type(8) { top: calc(50vh + 100px + ((14px + 34px) * 8) - 418px); }
+label.menu:nth-of-type(9) { top: calc(50vh + 100px + ((14px + 34px) * 9) - 418px); }
+
+/* Initial stack */
+.solar_systm:nth-of-type(1) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; }
+.solar_systm:nth-of-type(1) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(1) .planet_description p, .solar_systm:nth-of-type(1) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(1) .planet_description h1, .solar_systm:nth-of-type(1) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(2) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+.solar_systm:nth-of-type(2) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(2) .planet_description p, .solar_systm:nth-of-type(2) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(2) .planet_description h1, .solar_systm:nth-of-type(2) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(3) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+.solar_systm:nth-of-type(3) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(3) .planet_description p, .solar_systm:nth-of-type(3) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(3) .planet_description h1, .solar_systm:nth-of-type(3) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(4) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -1; }
+.solar_systm:nth-of-type(4) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(4) .planet_description p, .solar_systm:nth-of-type(4) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(4) .planet_description h1, .solar_systm:nth-of-type(4) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(5) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -2; }
+.solar_systm:nth-of-type(5) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(5) .planet_description p, .solar_systm:nth-of-type(5) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(5) .planet_description h1, .solar_systm:nth-of-type(5) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(6) .planet { transform: translateZ(-11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -3; }
+.solar_systm:nth-of-type(6) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(6) .planet_description p, .solar_systm:nth-of-type(6) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(6) .planet_description h1, .solar_systm:nth-of-type(6) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(7) .planet { transform: translateZ(-13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -4; }
+.solar_systm:nth-of-type(7) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(7) .planet_description p, .solar_systm:nth-of-type(7) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(7) .planet_description h1, .solar_systm:nth-of-type(7) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(8) .planet { transform: translateZ(-16100px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -5; }
+.solar_systm:nth-of-type(8) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(8) .planet_description p, .solar_systm:nth-of-type(8) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(8) .planet_description h1, .solar_systm:nth-of-type(8) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+.solar_systm:nth-of-type(9) .planet { transform: translateZ(-18400px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: -6; }
+.solar_systm:nth-of-type(9) .planet_description { opacity: 0; }
+.solar_systm:nth-of-type(9) .planet_description p, .solar_systm:nth-of-type(9) .planet_description a { opacity: 0; }
+.solar_systm:nth-of-type(9) .planet_description h1, .solar_systm:nth-of-type(9) .planet_description h2 { top: -330px; transition: all .5s 0s; }
+
+/* Checked states */
+input#mercury:checked ~ .solar .solar_systm { pointer-events: none; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) { pointer-events: all; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet_description h1, input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet_description p, input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(1) .planet .overlay { opacity: 1; top: -240px; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(-11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-16100px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-18400px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mercury:checked + label { opacity: 1; }
+input#mercury:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#mercury:checked + label .info h2 { opacity: 1; }
+input#mercury:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#mercury:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#mercury:checked ~ label.mercury .info h3 { color: #E8927C; }
+input#venus:checked ~ .solar .solar_systm { pointer-events: none; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) { pointer-events: all; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet_description h1, input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet_description p, input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(2) .planet .overlay { opacity: 1; top: -240px; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-16100px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#venus:checked + label { opacity: 1; }
+input#venus:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#venus:checked + label .info h2 { opacity: 1; }
+input#venus:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#venus:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#venus:checked ~ label.venus .info h3 { color: #b45d15; }
+input#earth:checked ~ .solar .solar_systm { pointer-events: none; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) { pointer-events: all; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet_description h1, input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet_description p, input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(3) .planet .overlay { opacity: 1; top: -240px; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#earth:checked + label { opacity: 1; }
+input#earth:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#earth:checked + label .info h2 { opacity: 1; }
+input#earth:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#earth:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#earth:checked ~ label.earth .info h3 { color: #26daaa; }
+input#mars:checked ~ .solar .solar_systm { pointer-events: none; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) { pointer-events: all; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet_description h1, input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet_description p, input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(4) .planet .overlay { opacity: 1; top: -240px; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#mars:checked + label { opacity: 1; }
+input#mars:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#mars:checked + label .info h2 { opacity: 1; }
+input#mars:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#mars:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#mars:checked ~ label.mars .info h3 { color: #e55f45; }
+input#jupiter:checked ~ .solar .solar_systm { pointer-events: none; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) { pointer-events: all; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet_description h1, input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet_description p, input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(5) .planet .overlay { opacity: 1; top: -240px; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#jupiter:checked + label { opacity: 1; }
+input#jupiter:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#jupiter:checked + label .info h2 { opacity: 1; }
+input#jupiter:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#jupiter:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#jupiter:checked ~ label.jupiter .info h3 { color: orange; }
+input#saturn:checked ~ .solar .solar_systm { pointer-events: none; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) { pointer-events: all; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet_description h1, input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet_description p, input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(6) .planet .overlay { opacity: 1; top: -240px; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#saturn:checked + label { opacity: 1; }
+input#saturn:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#saturn:checked + label .info h2 { opacity: 1; }
+input#saturn:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#saturn:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#saturn:checked ~ label.saturn .info h3 { color: #b29d81; }
+input#uranus:checked ~ .solar .solar_systm { pointer-events: none; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) { pointer-events: all; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet_description h1, input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet_description p, input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(7) .planet .overlay { opacity: 1; top: -240px; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#uranus:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#uranus:checked + label { opacity: 1; }
+input#uranus:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#uranus:checked + label .info h2 { opacity: 1; }
+input#uranus:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#uranus:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#uranus:checked ~ label.uranus .info h3 { color: #8dcdd8; }
+input#neptune:checked ~ .solar .solar_systm { pointer-events: none; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) { pointer-events: all; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(16100px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet_description h1, input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet_description p, input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(8) .planet .overlay { opacity: 1; top: -240px; }
+input#neptune:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(-2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#neptune:checked + label { opacity: 1; }
+input#neptune:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#neptune:checked + label .info h2 { opacity: 1; }
+input#neptune:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#neptune:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#neptune:checked ~ label.neptune .info h3 { color: #4f83e2; }
+input#pluto:checked ~ .solar .solar_systm { pointer-events: none; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) { pointer-events: all; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(1) .planet { transform: translateZ(18400px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(2) .planet { transform: translateZ(16100px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(3) .planet { transform: translateZ(13800px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(4) .planet { transform: translateZ(11500px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(5) .planet { transform: translateZ(9200px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(6) .planet { transform: translateZ(6900px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(7) .planet { transform: translateZ(4600px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 0; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(8) .planet { transform: translateZ(2300px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 1; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet { transform: translateZ(0px) translateY(0px) rotateX(4deg) scaleX(0.89); opacity: 2; animation: planet 60s 3.9s infinite linear; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet_description { opacity: 1; transition: all .6s 2.6s; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet_description h1, input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet_description h2 { position: relative; top: 0px; transition: all .5s 3s; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet_description p, input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet_description a { transition: all 1s 3.5s, padding 0.3s 0s; opacity: 1; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet .moon { opacity: 1; transition: all 1s 3.2s; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet .trajectory { opacity: 0.2; transition: all .6s 2.9s; }
+input#pluto:checked ~ .solar .solar_systm:nth-of-type(9) .planet .overlay { opacity: 1; top: -240px; }
+input#pluto:checked + label { opacity: 1; }
+input#pluto:checked + label:before { display: block; width: 4px; height: 4px; position: absolute; left: 2px; top: 2px; z-index: 2; background: white; border-radius: 4px; content: ""; }
+input#pluto:checked + label .info h2 { opacity: 1; }
+input#pluto:checked + label .info h2 .pip { width: 30px; margin-right: 6px; }
+input#pluto:checked + label .info h3 { opacity: 1; color: #fea082; }
+input#pluto:checked ~ label.pluto .info h3 { color: #FF8732; }
+
+/* Planet-specific description colors */
+.planet_description.mercury a { color: #E8927C; }
+.planet_description.mercury h2 { color: #E8927C; }
+.planet_description.venus a { color: #b45d15; }
+.planet_description.venus h2 { color: #b45d15; }
+.planet_description.earth a { color: #26daaa; }
+.planet_description.earth h2 { color: #26daaa; }
+.planet_description.mars a { color: #e55f45; }
+.planet_description.mars h2 { color: #e55f45; }
+.planet_description.jupiter a { color: orange; }
+.planet_description.jupiter h2 { color: #ffa500; }
+.planet_description.saturn a { color: #b29d81; }
+.planet_description.saturn h2 { color: #b29d81; }
+.planet_description.uranus a { color: #8dcdd8; }
+.planet_description.uranus h2 { color: #8dcdd8; }
+.planet_description.neptune a { color: #4f83e2; }
+.planet_description.neptune h2 { color: #4f83e2; }
+.planet_description.pluto a { color: #FF8732; }
+.planet_description.pluto h2 { color: #FF8732; }
+    </style>
+</head>
+<body>
+    <!-- HTML body from previous version - unchanged -->
+    <h1 class="logo">
+        Solar explorer
+        <span>in only CSS</span>
+    </h1>
+
+    <input type="radio" id="pluto" name="planet" class="planet9">
+    <label for="pluto" class="pluto menu">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Pluto</h2>
+            <h3>39.5 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="neptune" name="planet" class="planet8">
+    <label for="neptune" class="neptune menu">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Neptune</h2>
+            <h3>30.06 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="uranus" name="planet" class="planet7">
+    <label for="uranus" class="uranus menu">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Uranus</h2>
+            <h3>19.18 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="saturn" name="planet" class="planet6">
+    <label for="saturn" class="saturn menu">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Saturn</h2>
+            <h3>9.539 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="jupiter" name="planet" class="planet5">
+    <label for="jupiter" class="jupiter menu">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Jupiter</h2>
+            <h3>5.203 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="mars" name="planet" class="planet4" checked>
+    <label for="mars" class="menu mars">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Mars</h2>
+            <h3>1.524 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="earth" name="planet" class="planet3">
+    <label for="earth" class="menu earth">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Earth</h2>
+            <h3>1 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="venus" name="planet" class="planet2">
+    <label for="venus" class="menu venus">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Venus</h2>
+            <h3>0.723 AU</h3>
+        </div>
+    </label>
+
+    <input type="radio" id="mercury" name="planet" class="planet1">
+    <label for="mercury" class="menu mercury">
+        <div class="preview"></div>
+        <div class="info">
+            <h2><span class="pip"></span>Mercury</h2>
+            <h3>0.39 AU</h3>
+        </div>
+    </label>
+
+    <div class="solar">
+        <div class="solar_systm">
+            <div class="planet mercury">
+                <div class="planet_description mercury">
+                    <h2>Planet</h2>
+                    <h1>Mercury</h1>
+                    <p>The closest planet to the sun. It circles the sun faster than all the other planets, which is why Romans named it after their swift-footed messenger god.</p>
+                    <label for="readMercury"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet venus">
+                <div class="planet_description venus">
+                    <h2>Planet</h2>
+                    <h1>Venus</h1>
+                    <p>Named for the Roman goddess of love and beauty. In ancient times, Venus was often thought to be two different stars, the evening star and the morning star.</p>
+                    <label for="readVenus"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet earth">
+                <div class="moon moon">
+                    <h3>Moon</h3>
+                    <h2>Moon</h2>
+                </div>
+                <div class="trajectory m"></div>
+                <div class="planet_description earth">
+                    <h2>Planet</h2>
+                    <h1>Earth</h1>
+                    <p>Earth, our home. It is the only planet known to have an atmosphere containing free oxygen, oceans of liquid water on its surface, and, of course, life.</p>
+                    <label for="readEarth"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet mars">
+                <div class="moon deimos">
+                    <h3>Moon</h3>
+                    <h2>Deimos</h2>
+                </div>
+                <div class="trajectory d"></div>
+                <div class="moon phobos">
+                    <h3>Moon</h3>
+                    <h2>Phobos</h2>
+                </div>
+                <div class="trajectory p"></div>
+                <div class="planet_description mars">
+                    <h2>Planet</h2>
+                    <h1>Mars</h1>
+                    <p>Fourth planet from the Sun and the second smallest planet in the solar system. Named after the Roman god of war, often described as the “Red Planet”.</p>
+                    <label for="readMars"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet jupiter">
+                <div class="moon io">
+                    <h3>Moon</h3>
+                    <h2>Io</h2>
+                </div>
+                <div class="trajectory io_p"></div>
+                <div class="moon europa">
+                    <h3>Moon</h3>
+                    <h2>Europa</h2>
+                </div> 
+                <div class="trajectory ca"></div>                              
+                    <div class="moon callisto">                     
+    <h3>Moon</h3>
+    <h2>Callisto</h2>
+</div>
+
+                <div class="trajectory eu"></div>
+                <div class="moon ganymede">
+                    <h3>Moon</h3>
+                    <h2>Ganymede</h2>
+                </div>
+                <div class="trajectory ga"></div>
+                <div class="planet_description jupiter">
+                    <h2>Planet</h2>
+                    <h1>Jupiter</h1>
+                    <p>Jupiter is the largest planet in the solar system. Fittingly, it was named after the king of the gods in Roman mythology.</p>
+                    <label for="readJupiter"><a>Read Mor<span>e</span></a></label>                
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet saturn">
+                <div class="moon titan">
+                    <h3>Moon</h3>
+                    <h2>Titan</h2>
+                </div>
+                <div class="trajectory ti"></div>
+                <div class="moon dione">
+                    <h3>Moon</h3>
+                    <h2>Dione</h2>
+                </div>
+
+                <div class="moon rhea">
+    <h3>Moon</h3>
+    <h2>Rhea</h2>
+</div>
+<div class="trajectory rhe"></div>
+
+<div class="moon iapetus">
+    <h3>Moon</h3>
+    <h2>Iapetus</h2>
+</div>
+<div class="trajectory iap"></div>
+
+<div class="trajectory tet"></div>
+<div class="moon tethys">
+    <h3>Moon</h3>
+    <h2>Tethys</h2>
+</div>
+
+
+                <div class="trajectory di"></div>
+                <div class="moon enceladus">
+                    <h3>Moon</h3>
+                    <h2>Enceladus</h2>
+                </div>
+                <div class="trajectory enc"></div>
+                <div class="planet_description saturn">
+                    <h2>Planet</h2>
+                    <h1>Saturn</h1>
+                    <p>Saturn is the sixth planet from the sun and the second largest planet in the solar system. Saturn was the Roman name for Cronus, the lord of the Titans.</p>
+                    <label for="readSaturn"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet uranus">
+                <div class="moon miranda">
+                    <h3>Moon</h3>
+                    <h2>Miranda</h2>
+                </div>
+
+<div class="moon titania">
+    <h3>Moon</h3>
+    <h2>Titania</h2>
+</div>
+<div class="trajectory tia"></div>
+
+<div class="trajectory obe"></div>
+<div class="moon oberon">
+    <h3>Moon</h3>
+    <h2>Oberon</h2>
+</div>
+
+
+                <div class="trajectory mir"></div>
+                <div class="moon ariel">
+                    <h3>Moon</h3>
+                    <h2>Ariel</h2>
+                </div>
+                <div class="trajectory ari"></div>
+                <div class="moon umbriel">
+                    <h3>Moon</h3>
+                    <h2>Umbriel</h2>
+                </div>
+                <div class="trajectory umb"></div>
+                <div class="planet_description uranus">
+                    <h2>Planet</h2>
+                    <h1>Uranus</h1>
+                    <p>The first planet to be discovered by scientists. The planet is notable for its dramatic tilt, which causes its axis to point nearly directly at the sun.</p>
+                    <label for="readUranus"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet neptune">
+                <div class="moon triton">
+                    <h3>Moon</h3>
+                    <h2>Triton</h2>
+                </div>
+                <div class="trajectory tri"></div>
+                <div class="moon proteus">
+                    <h3>Moon</h3>
+                    <h2>Proteus</h2>
+                </div>
+                <div class="trajectory pro"></div>
+                <div class="moon nereid">
+                    <h3>Moon</h3>
+                    <h2>Nereid</h2>
+                </div>
+                <div class="trajectory ner"></div>
+                <div class="planet_description neptune">
+                    <h2>Planet</h2>
+                    <h1>Neptune</h1>
+                    <p>Neptune is the eighth and farthest known planet from the Sun in the Solar System. It is a gas giant with a mean radius of 24,622 km.</p>
+                    <label for="readNeptune"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+
+        <div class="solar_systm">
+            <div class="planet pluto">
+                <div class="planet_description pluto">
+                    <h2>Dwarf planet</h2>
+                    <h1>Pluto</h1>
+                    <p>Pluto, once considered the ninth and most distant planet from the sun, is now the largest known dwarf planet in the solar system.</p>
+                    <label for="readPluto"><a>Read Mor<span>e</span></a></label>
+                </div>
+                <div class="moon charon">
+    <h3>Moon</h3>
+    <h2>Charon</h2>
+</div>
+<div class="trajectory cha"></div>
+                <div class="overlay"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full panels unchanged from previous -->
+    <input type="radio" id="readMercury" name="mercuryRead" class="read">
+    <label for="closeMercury" class="closeBig"></label>
+    <input type="radio" id="closeMercury" name="mercuryRead" class="read">
+    <div class="panel">
+        <h1>Mercury</h1>
+        <p>Mercury is the closest planet to the sun. As such, it circles the sun faster than all the other planets, which is why Romans named it after their swift-footed messenger god.</p>
+        <p>The Sumerians also knew of Mercury since at least 5,000 years ago. It
